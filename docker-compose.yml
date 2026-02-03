@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATASET_PATH: /app/data/ecommerce_faq.csv
+      CHROMA_PERSIST_DIR: /app/chroma_data
+      CHROMA_COLLECTION: ecommerce_faq
+      EMBEDDING_MODEL: all-MiniLM-L6-v2
+      LLM_PROVIDER: ollama
+      LLM_MODEL: llama3
+      OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - ./data/ecommerce_faq.csv:/app/data/ecommerce_faq.csv:ro
+      - chroma_data:/app/chroma_data
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+volumes:
+  chroma_data:
+  ollama_data:
