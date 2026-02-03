@@ -5,7 +5,8 @@ from typing import Iterable
 
 import pandas as pd
 import requests
-from chromadb import PersistentClient
+import chromadb
+from chromadb.config import Settings as ChromaSettings
 from chromadb.utils import embedding_functions
 from fastapi import HTTPException
 
@@ -69,14 +70,23 @@ def build_collection(settings: Settings, documents: Iterable[Document]):
     embedder = embedding_functions.SentenceTransformerEmbeddingFunction(
         model_name=settings.embedding_model
     )
-    client = PersistentClient(path=settings.chroma_persist_dir)
+    client = chromadb.Client(
+        ChromaSettings(
+            is_persistent=True,
+            persist_directory=settings.chroma_persist_dir,
+        )
+    )
     collection = client.get_or_create_collection(
         name=settings.chroma_collection,
         embedding_function=embedder,
         metadata={"hnsw:space": "cosine"},
     )
 
-    if collection.count() == 0:
+    documents = list(documents)
+    if not documents:
+        raise ValueError("No documents available to populate the vector store.")
+
+    if collection.count() < len(documents):
         collection.add(
             ids=[doc.doc_id for doc in documents],
             documents=[doc.text for doc in documents],

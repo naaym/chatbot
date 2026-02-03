@@ -34,8 +34,7 @@ def startup_event() -> None:
         documents = load_faq_documents(settings.dataset_path)
     except FileNotFoundError as exc:
         logger.error(str(exc))
-        collection = None
-        return
+        raise
     collection = build_collection(settings, documents)
 
 
