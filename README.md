@@ -24,6 +24,7 @@ Placez le fichier CSV dans `data/` et nommez-le :
 Le CSV doit contenir deux colonnes : `question` et `answer`.
 Si le fichier est absent, l'API démarre mais les endpoints `/search` et `/chat` renverront une erreur `503`.
 Par défaut, l'application cherche aussi le CSV dans `/app/data/ecommerce_faq.csv` (chemin utilisé dans Docker).
+Le fichier `ecommerce_faq.csv` est un prérequis **manuel** : l'application ne le crée ni ne le télécharge.
 
 ## Installation locale (optionnel)
 ```bash

@@ -27,9 +27,8 @@ class Document:
 
 def load_faq_documents(dataset_path: str) -> list[Document]:
     candidate_paths = [
-        dataset_path,
-        "data/ecommerce_faq.csv",
         "/app/data/ecommerce_faq.csv",
+        "data/ecommerce_faq.csv",
     ]
     logger.info("Current working directory: %s", Path.cwd())
     for candidate in candidate_paths:
@@ -51,8 +50,8 @@ def load_faq_documents(dataset_path: str) -> list[Document]:
     if data_frame is None:
         tried_paths = ", ".join(candidate_paths)
         raise FileNotFoundError(
-            "Dataset file not found. Please download the Kaggle dataset and place "
-            f"the CSV at one of the expected paths: {tried_paths}."
+            "Dataset file not found. The CSV must be created manually by the user and "
+            f"placed at one of the expected paths: {tried_paths}."
         )
     normalized_columns = {column.lower().strip(): column for column in data_frame.columns}
     question_column = normalized_columns.get("question") or normalized_columns.get("questions")
