@@ -22,6 +22,7 @@ Placez le fichier CSV dans `data/` et nommez-le :
 /workspace/chatbot/data/ecommerce_faq.csv
 ```
 Le CSV doit contenir deux colonnes : `question` et `answer`.
+Si le fichier est absent, l'API démarre mais les endpoints `/search` et `/chat` renverront une erreur `503`.
 
 ## Installation locale (optionnel)
 ```bash

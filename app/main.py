@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -7,6 +9,7 @@ from app.rag import build_collection, generate_answer, load_faq_documents, retri
 app = FastAPI(title="E-commerce FAQ RAG", version="1.0.0")
 settings = get_settings()
 collection = None
+logger = logging.getLogger("uvicorn.error")
 
 
 class QueryRequest(BaseModel):
@@ -27,7 +30,12 @@ class ChatbotResponse(BaseModel):
 @app.on_event("startup")
 def startup_event() -> None:
     global collection
-    documents = load_faq_documents(settings.dataset_path)
+    try:
+        documents = load_faq_documents(settings.dataset_path)
+    except FileNotFoundError as exc:
+        logger.error(str(exc))
+        collection = None
+        return
     collection = build_collection(settings, documents)
 
 
@@ -39,7 +47,13 @@ def root() -> dict:
 @app.post("/search", response_model=SearchResponse)
 def search_docs(payload: QueryRequest) -> SearchResponse:
     if not collection:
-        raise HTTPException(status_code=500, detail="Vector store is not ready")
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Vector store is not ready. Ensure the Kaggle dataset is available at "
+                f"{settings.dataset_path}."
+            ),
+        )
     top_documents = retrieve_documents(collection, payload.query, top_k=5)
     return SearchResponse(query=payload.query, top_documents=top_documents)
 
@@ -47,7 +61,13 @@ def search_docs(payload: QueryRequest) -> SearchResponse:
 @app.post("/chat", response_model=ChatbotResponse)
 def chat(payload: QueryRequest) -> ChatbotResponse:
     if not collection:
-        raise HTTPException(status_code=500, detail="Vector store is not ready")
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Vector store is not ready. Ensure the Kaggle dataset is available at "
+                f"{settings.dataset_path}."
+            ),
+        )
     top_documents = retrieve_documents(collection, payload.query, top_k=5)
     response = generate_answer(settings, payload.query, top_documents)
     return ChatbotResponse(
