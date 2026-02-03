@@ -51,7 +51,7 @@ def search_docs(payload: QueryRequest) -> SearchResponse:
             status_code=503,
             detail=(
                 "Vector store is not ready. Ensure the Kaggle dataset is available at "
-                f"{settings.dataset_path}."
+                f"{settings.dataset_path} or /app/data/ecommerce_faq.csv."
             ),
         )
     top_documents = retrieve_documents(collection, payload.query, top_k=5)
@@ -65,7 +65,7 @@ def chat(payload: QueryRequest) -> ChatbotResponse:
             status_code=503,
             detail=(
                 "Vector store is not ready. Ensure the Kaggle dataset is available at "
-                f"{settings.dataset_path}."
+                f"{settings.dataset_path} or /app/data/ecommerce_faq.csv."
             ),
         )
     top_documents = retrieve_documents(collection, payload.query, top_k=5)

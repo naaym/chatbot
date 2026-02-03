@@ -20,13 +20,24 @@ class Document:
 
 
 def load_faq_documents(dataset_path: str) -> list[Document]:
-    try:
-        data_frame = pd.read_csv(dataset_path)
-    except FileNotFoundError as exc:
+    candidate_paths = [
+        dataset_path,
+        "data/ecommerce_faq.csv",
+        "/app/data/ecommerce_faq.csv",
+    ]
+    data_frame = None
+    for candidate in candidate_paths:
+        try:
+            data_frame = pd.read_csv(candidate)
+            break
+        except FileNotFoundError:
+            continue
+    if data_frame is None:
+        tried_paths = ", ".join(candidate_paths)
         raise FileNotFoundError(
             "Dataset file not found. Please download the Kaggle dataset and place "
-            "the CSV at the configured path."
-        ) from exc
+            f"the CSV at one of the expected paths: {tried_paths}."
+        )
     normalized_columns = {column.lower().strip(): column for column in data_frame.columns}
     question_column = normalized_columns.get("question") or normalized_columns.get("questions")
     answer_column = normalized_columns.get("answer") or normalized_columns.get("answers")
