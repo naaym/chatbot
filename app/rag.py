@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+import os
 from typing import Iterable
 
 import pandas as pd
@@ -32,10 +33,17 @@ def load_faq_documents(dataset_path: str) -> list[Document]:
     ]
     logger.info("Current working directory: %s", Path.cwd())
     for candidate in candidate_paths:
-        logger.info("Checking dataset path: %s (exists=%s)", candidate, Path(candidate).exists())
+        logger.info(
+            "Checking dataset path: %s (exists=%s, is_file=%s)",
+            candidate,
+            Path(candidate).exists(),
+            os.path.isfile(candidate),
+        )
     data_frame = None
     for candidate in candidate_paths:
         try:
+            if not os.path.isfile(candidate):
+                continue
             data_frame = pd.read_csv(candidate)
             break
         except FileNotFoundError:
