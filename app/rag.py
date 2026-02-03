@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterable
 
 import pandas as pd
 import requests
 import chromadb
+import logging
 from chromadb.config import Settings as ChromaSettings
 from chromadb.utils import embedding_functions
 from fastapi import HTTPException
 
 from app.config import Settings
+
+logger = logging.getLogger("uvicorn.error")
 
 
 @dataclass
@@ -26,6 +30,9 @@ def load_faq_documents(dataset_path: str) -> list[Document]:
         "data/ecommerce_faq.csv",
         "/app/data/ecommerce_faq.csv",
     ]
+    logger.info("Current working directory: %s", Path.cwd())
+    for candidate in candidate_paths:
+        logger.info("Checking dataset path: %s (exists=%s)", candidate, Path(candidate).exists())
     data_frame = None
     for candidate in candidate_paths:
         try:
